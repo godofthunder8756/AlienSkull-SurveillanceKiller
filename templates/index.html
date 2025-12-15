@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlienSkull - Surveillance Killer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <!-- Header -->
+            <div class="header">
+                <h1>ALIENSKULL</h1>
+                <div class="subtitle">Surveillance Killer v1.0</div>
+            </div>
+
+            <!-- Navigation -->
+            <nav>
+                <ul>
+                    <li><a href="/" class="active">Radar</a></li>
+                    <li><a href="/timeline">Timeline</a></li>
+                </ul>
+            </nav>
+
+            <!-- Status Section -->
+            <div class="sidebar-section">
+                <h2>Status</h2>
+                <div id="status-indicator" class="status status-error">Disconnected</div>
+                <div class="controls mt-1">
+                    <button id="btn-start" class="btn-primary">Start Scan</button>
+                    <button id="btn-stop" class="btn-danger" disabled>Stop Scan</button>
+                    <button id="btn-once" class="btn-secondary">Scan Once</button>
+                </div>
+            </div>
+
+            <!-- Statistics Section -->
+            <div class="sidebar-section">
+                <h2>Statistics</h2>
+                <div id="stats-display" class="stats-container">
+                    <div class="stat-empty">No scan data</div>
+                </div>
+            </div>
+
+            <!-- Details Section -->
+            <div class="sidebar-section">
+                <h2>Details</h2>
+                <div id="details-panel">
+                    <p style="color: #90e0ef; font-size: 12px;">Click on a contact for details</p>
+                </div>
+            </div>
+
+            <!-- Info Section -->
+            <div class="sidebar-section">
+                <h2>Info</h2>
+                <p style="font-size: 11px; color: #90e0ef;">
+                    <strong>Privacy First:</strong> All data stays on your device.
+                    No cloud, no tracking, no leaks.
+                </p>
+                <p style="font-size: 11px; color: #90e0ef; margin-top: 10px;">
+                    <strong>Legal:</strong> Educational/research use only.
+                    Passive scanning - no attacks.
+                </p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="radar-container">
+                <canvas id="radar-canvas"></canvas>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/radar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/websocket.js') }}"></script>
+    <script>
+        // Initialize components
+        const radar = new RadarDisplay('radar-canvas', {
+            maxDistance: {{ config.max_display_distance }},
+            showSweep: true
+        });
+
+        const statusManager = new StatusManager('status-indicator');
+        const statsDisplay = new StatsDisplay('stats-display');
+        const apiClient = new APIClient();
+
+        let isScanning = false;
+
+        // Initialize WebSocket
+        const ws = new WebSocketClient({
+            onConnected: () => {
+                console.log('WebSocket connected');
+                statusManager.setConnected();
+                checkScanningStatus();
+            },
+            onDisconnected: () => {
+                console.log('WebSocket disconnected');
+                statusManager.setDisconnected();
+            },
+            onScanUpdate: (data) => {
+                console.log('Scan update received', data);
+                radar.updateData(data);
+                statsDisplay.update(data.statistics);
+                if (isScanning) {
+                    statusManager.setScanning();
+                }
+            },
+            onError: (error) => {
+                console.error('WebSocket error:', error);
+                statusManager.setError('Connection error');
+            }
+        });
+
+        // Radar item selection handler
+        radar.onItemSelected = (item, type) => {
+            const detailsPanel = document.getElementById('details-panel');
+
+            if (!item) {
+                detailsPanel.innerHTML = '<p style="color: #90e0ef; font-size: 12px;">Click on a contact for details</p>';
+                return;
+            }
+
+            if (type === 'wifi') {
+                detailsPanel.innerHTML = `
+                    <div class="details-panel">
+                        <h4>Wi-Fi Network</h4>
+                        <p><strong>SSID:</strong> ${item.ssid || '<hidden>'}</p>
+                        <p><strong>BSSID:</strong> ${item.bssid}</p>
+                        <p><strong>Security:</strong> ${item.security}</p>
+                        <p><strong>Signal:</strong> ${item.rssi} dBm</p>
+                        <p><strong>Channel:</strong> ${item.channel} (${item.frequency} MHz)</p>
+                        <p><strong>Distance:</strong> ~${item.position.distance}m</p>
+                        <p><strong>Risk Score:</strong> <span class="risk-${item.risk_level}">${item.risk_score}/100</span></p>
+                        ${item.risk_factors && item.risk_factors.length > 0 ? `
+                            <div class="mt-1">
+                                <strong>Risk Factors:</strong>
+                                <ul style="margin-left: 20px; margin-top: 5px; font-size: 11px;">
+                                    ${item.risk_factors.map(f => `<li>${f}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            } else if (type === 'ble') {
+                detailsPanel.innerHTML = `
+                    <div class="details-panel">
+                        <h4>BLE Device</h4>
+                        <p><strong>Name:</strong> ${item.name || '<unnamed>'}</p>
+                        <p><strong>MAC:</strong> ${item.mac}</p>
+                        <p><strong>Type:</strong> ${item.device_type}</p>
+                        <p><strong>Signal:</strong> ${item.rssi} dBm</p>
+                        <p><strong>Distance:</strong> ~${item.position.distance}m</p>
+                        <p><strong>Risk Score:</strong> <span class="risk-${item.risk_level}">${item.risk_score}/100</span></p>
+                        ${item.is_tracker ? '<p class="warning mt-1">⚠️ Tracker Device Detected</p>' : ''}
+                        ${item.risk_factors && item.risk_factors.length > 0 ? `
+                            <div class="mt-1">
+                                <strong>Risk Factors:</strong>
+                                <ul style="margin-left: 20px; margin-top: 5px; font-size: 11px;">
+                                    ${item.risk_factors.map(f => `<li>${f}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+        };
+
+        // Check current scanning status
+        async function checkScanningStatus() {
+            try {
+                const response = await apiClient.getStatus();
+                isScanning = response.scanning;
+                updateButtons();
+            } catch (error) {
+                console.error('Failed to get status:', error);
+            }
+        }
+
+        // Button handlers
+        document.getElementById('btn-start').addEventListener('click', async () => {
+            try {
+                await apiClient.startScanning();
+                isScanning = true;
+                updateButtons();
+                statusManager.setScanning();
+            } catch (error) {
+                console.error('Failed to start scanning:', error);
+                alert('Failed to start scanning');
+            }
+        });
+
+        document.getElementById('btn-stop').addEventListener('click', async () => {
+            try {
+                await apiClient.stopScanning();
+                isScanning = false;
+                updateButtons();
+                statusManager.setIdle();
+            } catch (error) {
+                console.error('Failed to stop scanning:', error);
+                alert('Failed to stop scanning');
+            }
+        });
+
+        document.getElementById('btn-once').addEventListener('click', async () => {
+            try {
+                statusManager.setScanning();
+                const response = await apiClient.scanOnce();
+                radar.updateData(response.data);
+                statsDisplay.update(response.data.statistics);
+                setTimeout(() => {
+                    if (!isScanning) {
+                        statusManager.setIdle();
+                    }
+                }, 1000);
+            } catch (error) {
+                console.error('Failed to scan:', error);
+                statusManager.setError('Scan failed');
+                alert('Failed to perform scan. Make sure Termux:API is installed.');
+            }
+        });
+
+        function updateButtons() {
+            document.getElementById('btn-start').disabled = isScanning;
+            document.getElementById('btn-stop').disabled = !isScanning;
+        }
+
+        // Initial status check
+        checkScanningStatus();
+    </script>
+</body>
+</html>

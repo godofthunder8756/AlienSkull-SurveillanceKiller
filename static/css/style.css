@@ -1,0 +1,661 @@
+/**
+ * AlienSkull - Tactical HUD Styling
+ * Dark theme with glowing blue accents
+ */
+
+/* Color palette */
+:root {
+    --color-bg-primary: #000814;
+    --color-bg-secondary: #001d3d;
+    --color-bg-tertiary: #003566;
+    --color-accent-primary: #00f5ff;
+    --color-accent-secondary: #0096c7;
+    --color-text-primary: #caf0f8;
+    --color-text-secondary: #90e0ef;
+    --color-low: #00f5ff;
+    --color-medium: #ffba08;
+    --color-high: #ff0054;
+    --color-ble: #9d4edd;
+    --color-success: #06d6a0;
+    --color-warning: #ffba08;
+    --color-error: #ff0054;
+}
+
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Courier New', 'Consolas', monospace;
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+a {
+    color: var(--color-accent-primary);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--color-accent-secondary);
+    text-decoration: underline;
+}
+
+/* Layout */
+.container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* Header */
+.header {
+    background: linear-gradient(180deg, var(--color-bg-secondary) 0%, var(--color-bg-primary) 100%);
+    padding: 15px 20px;
+    border-bottom: 2px solid var(--color-accent-primary);
+    box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+}
+
+.header h1 {
+    font-size: 24px;
+    color: var(--color-accent-primary);
+    text-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
+    margin-bottom: 5px;
+}
+
+.header .subtitle {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    font-style: italic;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 350px;
+    background-color: var(--color-bg-secondary);
+    border-right: 1px solid var(--color-bg-tertiary);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.sidebar-section {
+    padding: 20px;
+    border-bottom: 1px solid var(--color-bg-tertiary);
+}
+
+.sidebar-section h2 {
+    font-size: 16px;
+    color: var(--color-accent-primary);
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Main content */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Radar container */
+.radar-container {
+    flex: 1;
+    position: relative;
+    background-color: var(--color-bg-primary);
+}
+
+#radar-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Controls */
+.controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+button {
+    background-color: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-accent-primary);
+    padding: 10px 20px;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+button:hover {
+    background-color: var(--color-accent-primary);
+    color: var(--color-bg-primary);
+    box-shadow: 0 0 15px rgba(0, 245, 255, 0.5);
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+button.btn-primary {
+    background-color: var(--color-accent-primary);
+    color: var(--color-bg-primary);
+    font-weight: bold;
+}
+
+button.btn-danger {
+    background-color: var(--color-high);
+    border-color: var(--color-high);
+}
+
+button.btn-danger:hover {
+    background-color: #cc0043;
+}
+
+button.btn-secondary {
+    background-color: var(--color-bg-tertiary);
+    border-color: var(--color-text-secondary);
+}
+
+/* Status indicator */
+.status {
+    padding: 8px 15px;
+    border-radius: 3px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.status-success {
+    background-color: rgba(6, 214, 160, 0.2);
+    color: var(--color-success);
+    border: 1px solid var(--color-success);
+}
+
+.status-error {
+    background-color: rgba(255, 0, 84, 0.2);
+    color: var(--color-error);
+    border: 1px solid var(--color-error);
+}
+
+.status-scanning {
+    background-color: rgba(0, 245, 255, 0.2);
+    color: var(--color-accent-primary);
+    border: 1px solid var(--color-accent-primary);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+/* Statistics */
+.stats-container {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.stat-group {
+    margin-bottom: 20px;
+}
+
+.stat-group h3 {
+    font-size: 14px;
+    color: var(--color-accent-secondary);
+    margin-bottom: 10px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--color-bg-tertiary);
+}
+
+.stat-label {
+    color: var(--color-text-secondary);
+}
+
+.stat-value {
+    color: var(--color-text-primary);
+    font-weight: bold;
+}
+
+.stat-item.risk-high {
+    color: var(--color-high);
+}
+
+.stat-item.risk-medium {
+    color: var(--color-medium);
+}
+
+.stat-item.risk-low {
+    color: var(--color-low);
+}
+
+/* Threat level indicator */
+.threat-level {
+    padding: 15px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 5px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.threat-low {
+    background-color: rgba(0, 245, 255, 0.2);
+    color: var(--color-low);
+    border: 2px solid var(--color-low);
+}
+
+.threat-moderate {
+    background-color: rgba(6, 214, 160, 0.2);
+    color: var(--color-success);
+    border: 2px solid var(--color-success);
+}
+
+.threat-elevated {
+    background-color: rgba(255, 186, 8, 0.2);
+    color: var(--color-medium);
+    border: 2px solid var(--color-medium);
+}
+
+.threat-critical {
+    background-color: rgba(255, 0, 84, 0.2);
+    color: var(--color-high);
+    border: 2px solid var(--color-high);
+    animation: pulse 1.5s infinite;
+}
+
+/* Details panel */
+.details-panel {
+    background-color: var(--color-bg-secondary);
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.details-panel h4 {
+    color: var(--color-accent-primary);
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.details-panel p {
+    font-size: 12px;
+    margin: 5px 0;
+}
+
+.details-panel strong {
+    color: var(--color-text-secondary);
+}
+
+/* Timeline */
+.timeline-container {
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.scan-card {
+    background-color: var(--color-bg-secondary);
+    border-left: 4px solid var(--color-low);
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 3px;
+    transition: transform 0.2s ease;
+}
+
+.scan-card:hover {
+    transform: translateX(5px);
+}
+
+.scan-card.threat-elevated,
+.scan-card.threat-moderate {
+    border-left-color: var(--color-medium);
+}
+
+.scan-card.threat-high,
+.scan-card.threat-critical {
+    border-left-color: var(--color-high);
+}
+
+.scan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.scan-time {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+}
+
+.threat-badge {
+    padding: 3px 10px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.scan-stats {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.scan-stat {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+}
+
+.stat-icon {
+    font-size: 16px;
+}
+
+.scan-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 8, 20, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: var(--color-bg-secondary);
+    border: 2px solid var(--color-accent-primary);
+    border-radius: 5px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90%;
+    overflow-y: auto;
+    box-shadow: 0 0 30px rgba(0, 245, 255, 0.5);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--color-bg-tertiary);
+}
+
+.modal-header h2 {
+    color: var(--color-accent-primary);
+    font-size: 20px;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: var(--color-text-primary);
+    font-size: 30px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+}
+
+.modal-close:hover {
+    color: var(--color-high);
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-body h3 {
+    color: var(--color-accent-secondary);
+    font-size: 16px;
+    margin: 20px 0 10px 0;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--color-bg-tertiary);
+}
+
+/* Network/Device details */
+.network-detail,
+.device-detail {
+    background-color: var(--color-bg-primary);
+    padding: 15px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--color-low);
+    border-radius: 3px;
+}
+
+.network-detail.risk-medium,
+.device-detail.risk-medium {
+    border-left-color: var(--color-medium);
+}
+
+.network-detail.risk-high,
+.device-detail.risk-high {
+    border-left-color: var(--color-high);
+}
+
+.network-header,
+.device-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.network-ssid,
+.device-name {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.risk-badge {
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+}
+
+.network-info,
+.device-info {
+    font-size: 12px;
+}
+
+.network-info p,
+.device-info p {
+    margin: 3px 0;
+}
+
+.risk-factors {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: rgba(255, 186, 8, 0.1);
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+.risk-factors ul {
+    margin: 5px 0 0 20px;
+}
+
+.risk-factors li {
+    margin: 3px 0;
+}
+
+/* Anomalies */
+.anomaly-item {
+    background-color: var(--color-bg-primary);
+    padding: 10px;
+    margin-bottom: 8px;
+    border-left: 3px solid var(--color-medium);
+    border-radius: 3px;
+}
+
+.anomaly-item.severity-high,
+.anomaly-item.severity-critical {
+    border-left-color: var(--color-high);
+}
+
+.anomaly-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.anomaly-type {
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.severity-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.anomaly-description {
+    font-size: 12px;
+}
+
+/* Navigation */
+nav {
+    background-color: var(--color-bg-secondary);
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--color-bg-tertiary);
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+nav a {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    padding: 5px 10px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+nav a:hover,
+nav a.active {
+    color: var(--color-accent-primary);
+    border-bottom-color: var(--color-accent-primary);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-bg-tertiary);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent-primary);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        max-height: 300px;
+    }
+
+    .header h1 {
+        font-size: 18px;
+    }
+
+    button {
+        padding: 8px 15px;
+        font-size: 12px;
+    }
+}
+
+/* Utility classes */
+.text-center {
+    text-align: center;
+}
+
+.mt-1 {
+    margin-top: 10px;
+}
+
+.mt-2 {
+    margin-top: 20px;
+}
+
+.mb-1 {
+    margin-bottom: 10px;
+}
+
+.mb-2 {
+    margin-bottom: 20px;
+}
+
+.hidden {
+    display: none;
+}
+
+.warning {
+    color: var(--color-warning);
+    font-weight: bold;
+}
+
+.error {
+    color: var(--color-error);
+    font-weight: bold;
+}
+
+.success {
+    color: var(--color-success);
+    font-weight: bold;
+}

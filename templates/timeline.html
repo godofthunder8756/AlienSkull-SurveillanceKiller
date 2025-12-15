@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline - AlienSkull</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container" style="flex-direction: column;">
+        <!-- Header -->
+        <div class="header">
+            <h1>ALIENSKULL - TIMELINE</h1>
+            <div class="subtitle">Scan History & Analysis</div>
+        </div>
+
+        <!-- Navigation -->
+        <nav>
+            <ul>
+                <li><a href="/">Radar</a></li>
+                <li><a href="/timeline" class="active">Timeline</a></li>
+            </ul>
+        </nav>
+
+        <!-- Controls -->
+        <div style="padding: 20px; background-color: var(--color-bg-secondary); border-bottom: 1px solid var(--color-bg-tertiary);">
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
+                <button id="btn-refresh" class="btn-primary">Refresh</button>
+                <button id="btn-export-json" class="btn-secondary">Export JSON</button>
+                <button id="btn-export-csv" class="btn-secondary">Export CSV</button>
+                <button id="btn-cleanup" class="btn-danger">Cleanup Old Data</button>
+
+                <!-- Filters -->
+                <div style="margin-left: auto; display: flex; gap: 10px;">
+                    <select id="filter-risk" style="background: var(--color-bg-tertiary); color: var(--color-text-primary); border: 1px solid var(--color-accent-primary); padding: 8px; font-family: inherit;">
+                        <option value="all">All Risk Levels</option>
+                        <option value="critical">Critical</option>
+                        <option value="elevated">Elevated</option>
+                        <option value="moderate">Moderate</option>
+                        <option value="low">Low</option>
+                    </select>
+
+                    <input type="text" id="filter-search" placeholder="Search..." style="background: var(--color-bg-tertiary); color: var(--color-text-primary); border: 1px solid var(--color-accent-primary); padding: 8px; font-family: inherit;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline Container -->
+        <div class="timeline-container" id="timeline-container">
+            <div class="stat-empty">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/websocket.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/timeline.js') }}"></script>
+    <script>
+        // Initialize API client
+        const apiClient = new APIClient();
+
+        // Initialize timeline
+        const timeline = new Timeline({
+            containerId: 'timeline-container',
+            api: apiClient
+        });
+
+        // Load initial data
+        timeline.load(100);
+
+        // Refresh button
+        document.getElementById('btn-refresh').addEventListener('click', () => {
+            timeline.load(100);
+        });
+
+        // Export buttons
+        document.getElementById('btn-export-json').addEventListener('click', async () => {
+            await timeline.exportData('json');
+        });
+
+        document.getElementById('btn-export-csv').addEventListener('click', async () => {
+            await timeline.exportData('csv');
+        });
+
+        // Cleanup button
+        document.getElementById('btn-cleanup').addEventListener('click', async () => {
+            const days = prompt('Delete scans older than how many days?', '30');
+            if (days && !isNaN(days)) {
+                try {
+                    const response = await apiClient.cleanupDatabase(parseInt(days));
+                    alert(response.message);
+                    timeline.load(100);
+                } catch (error) {
+                    console.error('Cleanup failed:', error);
+                    alert('Failed to cleanup database');
+                }
+            }
+        });
+
+        // Filter handlers
+        document.getElementById('filter-risk').addEventListener('change', (e) => {
+            timeline.setFilter('riskLevel', e.target.value);
+        });
+
+        document.getElementById('filter-search').addEventListener('input', (e) => {
+            timeline.setFilter('searchQuery', e.target.value);
+        });
+    </script>
+</body>
+</html>
