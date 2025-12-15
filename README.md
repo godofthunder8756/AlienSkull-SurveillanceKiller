@@ -4,16 +4,6 @@
 
 AlienSkull is an open-source, privacy-first surveillance detection tool that runs entirely offline via Termux. It scans and visualizes nearby Wi-Fi networks and Bluetooth devices on a real-time tactical radar HUD, helping you identify potential surveillance risks and network security issues.
 
-```
-     █████╗ ██╗     ██╗███████╗███╗   ██╗███████╗██╗  ██╗
-    ██╔══██╗██║     ██║██╔════╝████╗  ██║██╔════╝██║ ██╔╝
-    ███████║██║     ██║█████╗  ██╔██╗ ██║███████╗█████╔╝
-    ██╔══██║██║     ██║██╔══╝  ██║╚██╗██║╚════██║██╔═██╗
-    ██║  ██║███████╗██║███████╗██║ ╚████║███████║██║  ██╗
-    ╚═╝  ╚═╝╚══════╝╚═╝╚══════╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝
-
-          SURVEILLANCE KILLER - Privacy First Defense
-```
 
 ## 🌟 Features
 
